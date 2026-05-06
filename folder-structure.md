@@ -1,3 +1,4 @@
+```
 opensearch-jvector/
 ├── src/main/java/org/opensearch/knn/
 │   ├── plugin/
@@ -67,3 +68,4 @@ opensearch-jvector/
 ├── qa/                                    # Quality assurance tests
 ├── docs/                                  # Documentation
 └── build.gradle                           # Build configuration
+```
