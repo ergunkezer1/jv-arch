@@ -376,6 +376,7 @@ public KnnVectorsReader fieldsReader(SegmentReadState state) throws IOException 
 ### 3. Product Quantisation
 
 **Purpose:** Compress vectors for memory efficiency
+- Search Speed: During Phase 1, we use precomputed codebook tables, making distance calculations extremely fast.
 
 **Process:**
 1. **Training:** Learn codebooks from sample vectors
@@ -397,9 +398,9 @@ ProductQuantisation pq = ProductQuantisation.compute(
 
 ### 4. Incremental Merges
 
-**Traditional HNSW:** Rebuild entire graph when merging segments
+**Traditional HNSW:** Rebuild entire graph when merging segments.
 
-**JVector optimization:** Extend largest segment's graph with new vectors
+**JVector approach:** Extend largest segment's graph by merging smaller segments graph to prevent large graph recreation.
 
 **Source:** `JVectorWriter.java:899`
 ```java
