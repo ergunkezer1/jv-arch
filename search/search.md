@@ -23,6 +23,8 @@ POST /products/_search
 
 #### **Step 1: Query Parsing & Validation**
 
+**Purpose:** Validate query syntax, retrieve field configuration from index mapping, and prepare query vector for search.
+
 **File:** `KNNQueryBuilder.java:376-411`
 
 **Query State:**
@@ -70,6 +72,8 @@ Validated Query Object:
 
 #### **Step 2: Query Object Creation**
 
+**Purpose:** Encapsulate all query parameters into a JVector-specific query object that Lucene can execute.
+
 **File:** `KNNQueryBuilder.java:552-589`
 
 **Key Operation:**
@@ -104,6 +108,9 @@ JVectorKnnFloatVectorQuery Object:
 ---
 
 #### **Step 3: Per-Segment Search**
+
+**Purpose:** Initiate search on each index segment independently (parallel execution) and create JVector-specific collector with custom parameters.
+**JVector-specific collector**: It initiates the `JVectorKnnCollector` which is extension of `KnnCollector`. This collector's responsibility is to collect and keep the track of top k results along with scores and later to return the top k documents nearest from the gathered results with score. `JVectorKnnCollector` is bascially a wrapper of `KnnCollector` to support jvector specific params.
 
 **File:** `JVectorKnnFloatVectorQuery.java:62-82`
 
@@ -146,6 +153,8 @@ Per-Segment Execution:
 
 #### **Step 4: Graph Loading**
 
+**Purpose:** Load the HNSW graph structure, compressed vectors (if PQ enabled), and node-to-document mappings from disk into memory for this field.
+
 **File:** `JVectorReader.java:132-167`
 
 **Query State:**
@@ -177,6 +186,8 @@ if (fieldEntryMap.get(field).pqVectors != null) {
 ---
 
 #### **Step 5: Graph Traversal**
+
+**Purpose:** Navigate the HNSW graph to find k×overQueryFactor candidate vectors using fast approximate scoring (PQ if enabled).
 
 **File:** `JVectorReader.java:180-188`
 
@@ -224,6 +235,8 @@ Candidates Found: 50 nodes
 
 #### **Step 6: Re-ranking**
 
+**Purpose:** Improve accuracy by re-scoring all candidates with full-precision vectors, correcting errors from approximate PQ scoring.
+
 **Happens inside:** `graphSearcher.search()` (JVector library)
 
 **Query State:**
@@ -250,6 +263,8 @@ After re-ranking (exact scores):
 ---
 
 #### **Step 7: Top-K Selection**
+
+**Purpose:** Select the best k results from re-ranked candidates and map internal graph node IDs to Lucene document IDs.
 
 **File:** `JVectorReader.java:189-191`
 
@@ -285,6 +300,8 @@ Segment 1 Results:
 
 #### **Step 8: Statistics Collection**
 
+**Purpose:** Track search performance metrics (nodes visited, vectors re-ranked, search time) for monitoring and optimization.
+
 **File:** `JVectorReader.java:197-207`
 
 **Query State:**
@@ -310,6 +327,8 @@ KNNCounter.KNN_QUERY_GRAPH_SEARCH_TIME.add(searchTime);
 ---
 
 #### **Step 9: Multi-Segment Merge**
+
+**Purpose:** Combine top-k results from all segments and select the global top-k documents across the entire index.
 
 **Performed by:** Lucene's IndexSearcher (not in opensearch-jvector code)
 
