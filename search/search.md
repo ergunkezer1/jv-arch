@@ -552,9 +552,7 @@ Based on above, we can see that:
 
 **Source:** `SpaceType.java:29-100`
 
-- **L2 (Euclidean)**: `sqrt(Σ(a[i]-b[i])²)` - Geometric distance
-- **Cosine**: `1 - (a·b)/(||a||×||b||)` - Directional similarity
-- **Inner Product**: `a·b` - Dot product, magnitude matters
+![space type calculation formulas](./public/space-type.png)
 
 ### 7. Key Parameters
 
